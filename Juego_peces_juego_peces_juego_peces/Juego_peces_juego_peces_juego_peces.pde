@@ -60,18 +60,20 @@ class particula {
   void calcula_particula() {
   PVector acumulador_forsa = new PVector(0.0, 0.0, 0.0);
   
-  // Forca cap al desti
-  PVector vector_per_usar = PVector.sub(desti, posicio_particula);
-  vector_per_usar.normalize();
-  vector_per_usar.mult(constant_desti);
-  acumulador_forsa.add(vector_per_usar);
-  
-  // Forca cap al lider
+  // Si esta particula no es el lider, seguir al lider
   if (this != lider) {
     PVector vector_lider = PVector.sub(lider.posicio_particula, posicio_particula);
     vector_lider.normalize();
     vector_lider.mult(constant_lider);
     acumulador_forsa.add(vector_lider);
+  }
+  
+  // Si esta particula es el lider, ir al destino
+  if (this == lider) {
+    PVector vector_destino = PVector.sub(desti, posicio_particula);
+    vector_destino.normalize();
+    vector_destino.mult(constant_desti);
+    acumulador_forsa.add(vector_destino);
   }
   
   // Forca del voxel
@@ -85,24 +87,6 @@ class particula {
       posicio_particula.y > min_y && posicio_particula.y < max_y &&
       posicio_particula.z > min_z && posicio_particula.z < max_z) {
     acumulador_forsa.add(primer_voxel.forca_dins_voxel);
-  }
-  
-  // Forca hacia el nuevo destino solo si el líder tiene hambre
-  if (lider_hambriento && this == lider) {
-    PVector vector_destino = PVector.sub(desti, posicio_particula);
-    vector_destino.normalize();
-    vector_destino.mult(constant_desti);
-    acumulador_forsa.add(vector_destino);
-    
-    // Detectar si el líder ha llegado al destino
-    if (posicio_particula.dist(desti) < 1) {
-      lider_hambriento = false; // El líder deja de estar hambriento
-    }
-  } else {
-    // Si el líder no está hambriento, se mueve aleatoriamente (wandering)
-    PVector random_dir = PVector.random3D();
-    random_dir.mult(0.5); // Modificar la magnitud del movimiento aleatorio según sea necesario
-    acumulador_forsa.add(random_dir);
   }
   
   // Forca de friccio
@@ -119,6 +103,7 @@ class particula {
   // Actualizar posicion
   posicio_particula.add(velocitat_particula.copy().mult(increment_temps));
 }
+
   void pinta_particula() {
     pushMatrix();
     translate(posicio_particula.x, posicio_particula.y, posicio_particula.z);
@@ -150,9 +135,9 @@ void setup() {
     PVector velocidad = PVector.random3D();
     float masa = random(0.5, 2.0);
     float tamano = random(10, 20);
-    float constante_destino = random(0.1, 0.5);
-    float constante_lider = random(0.1, 0.5);
-    float constante_friccion = random(0.1, 0.5);
+    float constante_destino = random(0.1, 0.9);
+    float constante_lider = random(0.1, 0.9);
+    float constante_friccion = random(0.1, 0.9);
     color color_boid = color(random(255), random(255), random(255));
     boids[i] = new particula(posicion, velocidad, masa, tamano, constante_destino, constante_lider, constante_friccion, color_boid);
   }
