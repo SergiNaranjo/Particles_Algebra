@@ -43,10 +43,10 @@ class particula {
   PVector acceleracio_particula;
   float massa_particula;
   float tamany_particula;
-  float constant_desti, constant_lider, constant_friccio;
+  float constant_desti, constant_lider, constant_friccio, constant_atraccion_entre_particulas;
   color color_particula;
   // Constructor
-  particula(PVector p, PVector v, float m, float tam, float const_d, float const_l, float const_f, color c) {
+  particula(PVector p, PVector v, float m, float tam, float const_d, float const_l, float const_f, float const_a, color c) {
     posicio_particula = p.copy();
     velocitat_particula = v.copy();
     massa_particula = m;
@@ -55,6 +55,7 @@ class particula {
     constant_desti = const_d;
     constant_lider = const_l;
     constant_friccio = const_f;
+    constant_atraccion_entre_particulas = const_a;
   }
   // Métodos
   void calcula_particula() {
@@ -120,11 +121,11 @@ void setup() {
   primer_voxel = new voxel(new PVector(0.0, -1.0, 0.0), new PVector(width / 2.0, height / 2.0, 0.0),
     100.0, 150.0, 100.0, color(200));
   boid1 = new particula(new PVector(width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.4, 0.5, color(255, 0, 0));
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.4, 0.5, 0.6, color(255, 0, 0));
   boid2 = new particula(new PVector(3.0 * width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.7, 0.1, 0.2, color(0, 255, 0));
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.7, 0.1, 0.2, 0.4, color(0, 255, 0));
   lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, 0.3, color(0, 0, 255));
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, 0.3, 0.1, color(0, 0, 255));
   
   // Inicializar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
@@ -138,8 +139,9 @@ void setup() {
     float constante_destino = random(0.1, 0.9);
     float constante_lider = random(0.1, 0.9);
     float constante_friccion = random(0.1, 0.9);
+    float constante_atraccion = random(0.1, 0.9);
     color color_boid = color(random(255), random(255), random(255));
-    boids[i] = new particula(posicion, velocidad, masa, tamano, constante_destino, constante_lider, constante_friccion, color_boid);
+    boids[i] = new particula(posicion, velocidad, masa, tamano, constante_destino, constante_lider, constante_friccion, constante_atraccion, color_boid);
   }
 }
 
