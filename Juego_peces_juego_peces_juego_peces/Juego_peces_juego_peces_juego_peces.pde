@@ -6,6 +6,8 @@ particula boid2;
 particula lider;
 voxel primer_voxel;
 particula[] boids = new particula[10]; // Arreglo de boids adicionales
+boolean lider_hambriento = true;
+int tiempo_pasado = 0;
 
 // Funciones y clases
 class voxel {
@@ -56,49 +58,67 @@ class particula {
   }
   // Métodos
   void calcula_particula() {
-    PVector acumulador_forsa = new PVector(0.0, 0.0, 0.0);
-    // Forca cap al desti
-    PVector vector_per_usar = PVector.sub(desti, posicio_particula);
-    vector_per_usar.normalize();
-    vector_per_usar.mult(constant_desti);
-    acumulador_forsa.add(vector_per_usar);
-    // Forca cap al lider
-    if (this != lider) {
-      PVector vector_lider = PVector.sub(lider.posicio_particula, posicio_particula);
-      vector_lider.normalize();
-      vector_lider.mult(constant_lider);
-      acumulador_forsa.add(vector_lider);
-    }
-    // Forca del voxel
-    float min_x = primer_voxel.posicio_voxel.x - 0.5 * primer_voxel.ample_voxel;
-    float max_x = primer_voxel.posicio_voxel.x + 0.5 * primer_voxel.ample_voxel;
-    float min_y = primer_voxel.posicio_voxel.y - 0.5 * primer_voxel.alcada_voxel;
-    float max_y = primer_voxel.posicio_voxel.y + 0.5 * primer_voxel.alcada_voxel;
-    float min_z = primer_voxel.posicio_voxel.z - 0.5 * primer_voxel.profunditat_voxel;
-    float max_z = primer_voxel.posicio_voxel.z + 0.5 * primer_voxel.profunditat_voxel;
-    if (posicio_particula.x > min_x && posicio_particula.x < max_x &&
-        posicio_particula.y > min_y && posicio_particula.y < max_y &&
-        posicio_particula.z > min_z && posicio_particula.z < max_z) {
-      acumulador_forsa.add(primer_voxel.forca_dins_voxel);
-    }
-    // Forca hacia el nuevo destino
+  PVector acumulador_forsa = new PVector(0.0, 0.0, 0.0);
+  
+  // Forca cap al desti
+  PVector vector_per_usar = PVector.sub(desti, posicio_particula);
+  vector_per_usar.normalize();
+  vector_per_usar.mult(constant_desti);
+  acumulador_forsa.add(vector_per_usar);
+  
+  // Forca cap al lider
+  if (this != lider) {
+    PVector vector_lider = PVector.sub(lider.posicio_particula, posicio_particula);
+    vector_lider.normalize();
+    vector_lider.mult(constant_lider);
+    acumulador_forsa.add(vector_lider);
+  }
+  
+  // Forca del voxel
+  float min_x = primer_voxel.posicio_voxel.x - 0.5 * primer_voxel.ample_voxel;
+  float max_x = primer_voxel.posicio_voxel.x + 0.5 * primer_voxel.ample_voxel;
+  float min_y = primer_voxel.posicio_voxel.y - 0.5 * primer_voxel.alcada_voxel;
+  float max_y = primer_voxel.posicio_voxel.y + 0.5 * primer_voxel.alcada_voxel;
+  float min_z = primer_voxel.posicio_voxel.z - 0.5 * primer_voxel.profunditat_voxel;
+  float max_z = primer_voxel.posicio_voxel.z + 0.5 * primer_voxel.profunditat_voxel;
+  if (posicio_particula.x > min_x && posicio_particula.x < max_x &&
+      posicio_particula.y > min_y && posicio_particula.y < max_y &&
+      posicio_particula.z > min_z && posicio_particula.z < max_z) {
+    acumulador_forsa.add(primer_voxel.forca_dins_voxel);
+  }
+  
+  // Forca hacia el nuevo destino solo si el líder tiene hambre
+  if (lider_hambriento && this == lider) {
     PVector vector_destino = PVector.sub(desti, posicio_particula);
     vector_destino.normalize();
     vector_destino.mult(constant_desti);
     acumulador_forsa.add(vector_destino);
     
-    // Forca de friccio
-    PVector friccio = velocitat_particula.copy();
-    friccio.mult(-1.0 * constant_friccio);
-    acumulador_forsa.add(friccio);
-    // Aceleracio
-    acceleracio_particula = acumulador_forsa.div(massa_particula);
-    // Actualizar velocidad
-    velocitat_particula.add(acceleracio_particula.mult(increment_temps));
-    // Actualizar posicion
-    posicio_particula.add(velocitat_particula.copy().mult(increment_temps));
+    // Detectar si el líder ha llegado al destino
+    if (posicio_particula.dist(desti) < 1) {
+      lider_hambriento = false; // El líder deja de estar hambriento
+    }
+  } else {
+    // Si el líder no está hambriento, se mueve aleatoriamente (wandering)
+    PVector random_dir = PVector.random3D();
+    random_dir.mult(0.5); // Modificar la magnitud del movimiento aleatorio según sea necesario
+    acumulador_forsa.add(random_dir);
+  }
+  
+  // Forca de friccio
+  PVector friccio = velocitat_particula.copy();
+  friccio.mult(-1.0 * constant_friccio);
+  acumulador_forsa.add(friccio);
+  
+  // Aceleracio
+  acceleracio_particula = acumulador_forsa.div(massa_particula);
+  
+  // Actualizar velocidad
+  velocitat_particula.add(acceleracio_particula.mult(increment_temps));
+  
+  // Actualizar posicion
+  posicio_particula.add(velocitat_particula.copy().mult(increment_temps));
 }
-
   void pinta_particula() {
     pushMatrix();
     translate(posicio_particula.x, posicio_particula.y, posicio_particula.z);
@@ -115,11 +135,11 @@ void setup() {
   primer_voxel = new voxel(new PVector(0.0, -1.0, 0.0), new PVector(width / 2.0, height / 2.0, 0.0),
     100.0, 150.0, 100.0, color(200));
   boid1 = new particula(new PVector(width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, 0.5, color(255, 0, 0));
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.4, 0.5, color(255, 0, 0));
   boid2 = new particula(new PVector(3.0 * width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.8, 0.1, 0.2, color(0, 255, 0));
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.7, 0.1, 0.2, color(0, 255, 0));
   lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, 0.6, color(0, 0, 255));
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, 0.3, color(0, 0, 255));
   
   // Inicializar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
@@ -178,5 +198,13 @@ void draw() {
   rotateX(20);
   box(50, 50, 50);
   popMatrix();
+  
+   tiempo_pasado++;
+  
+  // Comprobar si han pasado 30 segundos
+  if (tiempo_pasado >= 30 * 60) { // 30 segundos * 60 cuadros por segundo
+    lider_hambriento = true; // El líder vuelve a estar hambriento
+    tiempo_pasado = 0; // Reiniciar el tiempo transcurrido
+  }
   
 }
