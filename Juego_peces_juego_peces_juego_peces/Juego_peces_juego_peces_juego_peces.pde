@@ -86,6 +86,7 @@ class particula {
     vector_destino.normalize();
     vector_destino.mult(constant_desti);
     acumulador_forsa.add(vector_destino);
+    acumulador_forsa.mult(-1);
     
     // Forca de friccio
     PVector friccio = velocitat_particula.copy();
