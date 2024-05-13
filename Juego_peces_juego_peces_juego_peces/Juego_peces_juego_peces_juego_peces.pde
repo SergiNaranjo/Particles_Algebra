@@ -1,9 +1,11 @@
 // Variables y objetos
 float increment_temps = 0.4;
 PVector desti;
+PVector obstacle;
 particula boid1;
 particula boid2;
 particula lider;
+voxel obstacle_voxel;
 voxel primer_voxel;
 particula[] boids = new particula[10]; // Arreglo de boids adicionales
 
@@ -42,27 +44,54 @@ class particula {
   float massa_particula;
   float tamany_particula;
   float constant_desti, constant_lider, constant_friccio;
+  float constant_obstacle;
   color color_particula;
   // Constructor
-  particula(PVector p, PVector v, float m, float tam, float const_d, float const_l, float const_f, color c) {
+  particula(PVector p, PVector v, float m, float tam, float const_d, float const_o, float const_l, float const_f, color c) {
     posicio_particula = p.copy();
     velocitat_particula = v.copy();
     massa_particula = m;
     tamany_particula = tam;
     color_particula = c;
     constant_desti = const_d;
+    constant_obstacle = const_o;
     constant_lider = const_l;
     constant_friccio = const_f;
   }
   // Métodos
   void calcula_particula() {
     PVector acumulador_forsa = new PVector(0.0, 0.0, 0.0);
+    PVector acumulador_repulsio = new PVector(0.0, 0.0, 0.0);
     // Forca cap al desti
     PVector vector_per_usar = PVector.sub(desti, posicio_particula);
+    PVector vector_per_evitar = PVector.sub (obstacle, posicio_particula);
+    vector_per_evitar.normalize();
     vector_per_usar.normalize();
+    vector_per_evitar.mult(constant_obstacle);
     vector_per_usar.mult(constant_desti);
     acumulador_forsa.add(vector_per_usar);
+    acumulador_repulsio.add(vector_per_evitar);
     // Forca cap al lider
+    
+    float min_x_o = obstacle_voxel.posicio_voxel.x - 0.5 * obstacle_voxel.ample_voxel;
+    float max_x_o = obstacle_voxel.posicio_voxel.x + 0.5 * obstacle_voxel.ample_voxel;
+    float min_y_o = obstacle_voxel.posicio_voxel.y - 0.5 * obstacle_voxel.alcada_voxel;
+    float max_y_o = obstacle_voxel.posicio_voxel.y + 0.5 * obstacle_voxel.alcada_voxel;
+    float min_z_o = obstacle_voxel.posicio_voxel.z - 0.5 * obstacle_voxel.profunditat_voxel;
+    float max_z_o = obstacle_voxel.posicio_voxel.z + 0.5 * obstacle_voxel.profunditat_voxel;
+    if (posicio_particula.x > min_x_o && posicio_particula.x < max_x_o &&
+        posicio_particula.y > min_y_o && posicio_particula.y < max_y_o &&
+        posicio_particula.z > min_z_o && posicio_particula.z < max_z_o) {
+      acumulador_forsa.add(obstacle_voxel.forca_dins_voxel);
+    }
+    // Forca hacia el nuevo destino
+    PVector vector_repulsio = PVector.sub(obstacle, posicio_particula);
+    vector_repulsio.normalize();
+    vector_repulsio.mult(constant_obstacle);
+    acumulador_repulsio.add(vector_repulsio);
+    acumulador_repulsio.mult(-1);
+    
+    
     if (this != lider) {
       PVector vector_lider = PVector.sub(lider.posicio_particula, posicio_particula);
       vector_lider.normalize();
@@ -86,7 +115,7 @@ class particula {
     vector_destino.normalize();
     vector_destino.mult(constant_desti);
     acumulador_forsa.add(vector_destino);
-    acumulador_forsa.mult(-1);
+
     
     // Forca de friccio
     PVector friccio = velocitat_particula.copy();
