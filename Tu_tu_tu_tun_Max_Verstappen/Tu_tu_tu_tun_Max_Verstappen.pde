@@ -35,21 +35,19 @@ class corba {
     coefs[0].set(punts_ctrl[0]);
     // C1 = -5.5P0 + 9P1 - 4.5P2 + P3
     coefs[1].set(
-      -5.5 * punts_ctrl[0].x + 9 * punts_ctrl[1].x - 4.5 * punts_ctrl[2].x + punts_ctrl[3].x,
-      -5.5 * punts_ctrl[0].y + 9 * punts_ctrl[1].y - 4.5 * punts_ctrl[2].y + punts_ctrl[3].y,
-      -5.5 * punts_ctrl[0].z + 9 * punts_ctrl[1].z - 4.5 * punts_ctrl[2].z + punts_ctrl[3].z
-    );
+      -3 * punts_ctrl[0].x + 3 * punts_ctrl[1].x,
+      -3 * punts_ctrl[0].y + 3 * punts_ctrl[1].y,
+      -3 * punts_ctrl[0].z + 3 * punts_ctrl[1].z);
     // C2 = 9P0 - 22.5P1 + 18P2 - 4.5P3
     coefs[2].set(
-      9 * punts_ctrl[0].x - 22.5 * punts_ctrl[1].x + 18 * punts_ctrl[2].x - 4.5 * punts_ctrl[3].x,
-      9 * punts_ctrl[0].y - 22.5 * punts_ctrl[1].y + 18 * punts_ctrl[2].y - 4.5 * punts_ctrl[3].y,
-      9 * punts_ctrl[0].z - 22.5 * punts_ctrl[1].z + 18 * punts_ctrl[2].z - 4.5 * punts_ctrl[3].z
-    );
+      3 * punts_ctrl[0].x - 6 * punts_ctrl[1].x + 3 * punts_ctrl[2].x,
+      3 * punts_ctrl[0].y - 6 * punts_ctrl[1].y + 3 * punts_ctrl[2].y,
+      3 * punts_ctrl[0].z - 6 * punts_ctrl[1].z + 3 * punts_ctrl[2].z);
     // C3 = -4.5P0 + 13.5P1 - 13.5P2 + 4.5P3
     coefs[3].set(
-      -4.5 * punts_ctrl[0].x + 13.5 * punts_ctrl[1].x - 13.5 * punts_ctrl[2].x + 4.5 * punts_ctrl[3].x,
-      -4.5 * punts_ctrl[0].y + 13.5 * punts_ctrl[1].y - 13.5 * punts_ctrl[2].y + 4.5 * punts_ctrl[3].y,
-      -4.5 * punts_ctrl[0].z + 13.5 * punts_ctrl[1].z - 13.5 * punts_ctrl[2].z + 4.5 * punts_ctrl[3].z
+      -punts_ctrl[0].x + 3 * punts_ctrl[1].x - 3 * punts_ctrl[2].x + punts_ctrl[3].x,
+      -punts_ctrl[0].y + 3 * punts_ctrl[1].y - 3 * punts_ctrl[2].y + punts_ctrl[3].y,
+      -punts_ctrl[0].z + 3 * punts_ctrl[1].z - 3 * punts_ctrl[2].z + punts_ctrl[3].z
     );
   }
   
@@ -83,6 +81,14 @@ class corba {
       vertex(punt_a_pintar.x, punt_a_pintar.y, punt_a_pintar.z);
     }
     endShape();
+    
+    stroke(200);
+    strokeWeight(2);
+    
+    line(punts_ctrl[0].x, punts_ctrl[0].y, punts_ctrl[0].z, punts_ctrl[1].x, punts_ctrl[1].y, punts_ctrl[1].z);
+    line(punts_ctrl[1].x, punts_ctrl[1].y, punts_ctrl[1].z, punts_ctrl[3].x, punts_ctrl[3].y, punts_ctrl[3].z);
+    line(punts_ctrl[3].x, punts_ctrl[3].y, punts_ctrl[3].z, punts_ctrl[2].x, punts_ctrl[2].y, punts_ctrl[2].z);
+    line(punts_ctrl[2].x, punts_ctrl[2].y, punts_ctrl[2].z, punts_ctrl[0].x, punts_ctrl[0].y, punts_ctrl[0].z);
   }
   
   PVector getPuntARecorrer(float u) {
