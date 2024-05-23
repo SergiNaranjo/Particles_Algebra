@@ -28,7 +28,8 @@ class voxel {
     noFill();
     stroke(color_voxel);
     pushMatrix();
-    translate(posicio_voxel.x, posicio_voxel.y, posicio_voxel.z);
+    translate(posicio_voxel.x, posicio_voxel.y - 10, posicio_voxel.z + 200);
+    rotateX(50.0);
     box(ample_voxel, alcada_voxel, profunditat_voxel);
     popMatrix();
   }
@@ -42,9 +43,11 @@ class particula {
   float massa_particula;
   float tamany_particula;
   float constant_desti, constant_lider, constant_friccio;
+  float radio_repulsion; 
   color color_particula;
+  boolean esLider; 
   // Constructor
-  particula(PVector p, PVector v, float m, float tam, float const_d, float const_l, float const_f, color c) {
+  particula(PVector p, PVector v, float m, float tam, float const_d, float const_l, float const_f, color c,  float radio_rep) {
     posicio_particula = p.copy();
     velocitat_particula = v.copy();
     massa_particula = m;
@@ -53,6 +56,7 @@ class particula {
     constant_desti = const_d;
     constant_lider = const_l;
     constant_friccio = const_f;
+    radio_repulsion = radio_rep; 
   }
   // Métodos
   void calcula_particula() {
@@ -97,6 +101,29 @@ class particula {
     velocitat_particula.add(acceleracio_particula.mult(increment_temps));
     // Actualizar posicion
     posicio_particula.add(velocitat_particula.copy().mult(increment_temps));
+    
+    // Centro de gravedad
+    PVector centroGravedad = new PVector(0, 0, 0);
+    for (int i = 0; i < boids.length; i++) {
+      if (boids[i] != this) {
+        centroGravedad.add(boids[i].posicio_particula);
+        // Fuerza de repulsión entre partículas si están muy cerca
+        PVector direccion = PVector.sub(boids[i].posicio_particula, posicio_particula);
+        float distancia = direccion.mag();
+        if (distancia < radio_repulsion) {
+          direccion.normalize();
+          float fuerza = 1 / (distancia * distancia);
+          direccion.mult(-fuerza);
+          acumulador_forsa.add(direccion);
+        }
+      }
+    }
+    centroGravedad.div(boids.length - 1);
+    // Fuerza de atracción hacia el centro de gravedad
+    PVector direccion_centroGravedad = PVector.sub(centroGravedad, posicio_particula);
+    direccion_centroGravedad.normalize();
+    direccion_centroGravedad.mult(constant_desti); // Ajusta la magnitud de la fuerza hacia el centro de gravedad
+    acumulador_forsa.add(direccion_centroGravedad);
 }
 
   void pinta_particula() {
@@ -112,14 +139,14 @@ class particula {
 void setup() {
   size(1920, 1080, P3D);
   desti = new PVector(500, height/2.0 - 50, -400);
-  primer_voxel = new voxel(new PVector(0.0, -1.0, 0.0), new PVector(width / 2.0, height / 2.0, 0.0),
+  primer_voxel = new voxel(new PVector(0.0, -1.0, -100.0), new PVector(width / 2.0, height / 2.0, 0.0),
     100.0, 150.0, 100.0, color(200));
   boid1 = new particula(new PVector(width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, 0.5, color(255, 0, 0));
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, 0.5, color(255, 0, 0), 0.0);
   boid2 = new particula(new PVector(3.0 * width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.8, 0.1, 0.2, color(0, 255, 0));
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.8, 0.1, 0.2, color(0, 255, 0), 0.0);
   lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, 0.6, color(0, 0, 255));
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, 0.6, color(0, 0, 255), 0.0);
   
   // Inicializar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
@@ -134,7 +161,7 @@ void setup() {
     float constante_lider = random(0.1, 0.5);
     float constante_friccion = random(0.1, 0.5);
     color color_boid = color(random(255), random(255), random(255));
-    boids[i] = new particula(posicion, velocidad, masa, tamano, constante_destino, constante_lider, constante_friccion, color_boid);
+    boids[i] = new particula(posicion, velocidad, masa, tamano, constante_destino, constante_lider, constante_friccion, color_boid, 50);
   }
 }
 
