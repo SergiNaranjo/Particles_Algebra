@@ -6,8 +6,174 @@ particula boid2;
 particula lider;
 voxel primer_voxel;
 particula[] boids = new particula[10]; // Arreglo de boids adicionales
+corba la_primera_corba;
+float u; // Variable de la posició al llarg de la corba
+float velocidad; // Velocitat de l'element
+boolean anada; // Direcció de l'element
+
+corbaBezier la_segona_corba;
+float u2; // Variable de la posició al llarg de la corba
+float velocidadBezier; // Velocitat de l'element
+boolean anadaBezier; // Direcció de l'element
 
 // Funciones y clases
+// Classes
+
+// CURVA DE BEZIER
+// Classes
+class corbaBezier {
+  // Atributs
+  PVector[] punts_ctrl_Bezier; // Per on passa
+  PVector[] coefs_Bezier; // Governen l'eqüació
+  int numero_punts_Bezier; // Quants punts volem pintar per la corba
+  
+  // Constructor
+  corbaBezier(PVector[] pc2, int np2) {
+    punts_ctrl_Bezier = new PVector[4]; // Hi ha 4 punts de control
+    coefs_Bezier = new PVector[4];
+    for (int i = 0; i < 4; i++) {
+      punts_ctrl_Bezier[i] = new PVector(0.0, 0.0, 0.0);
+      coefs_Bezier[i] = new PVector(0.0, 0.0, 0.0);
+      // Copiem els 4 punts de ctrl que ens han passat
+      punts_ctrl_Bezier[i] = pc2[i];
+    }
+    numero_punts_Bezier = np2;
+  }
+  
+  // Mètodes
+  void calcular_coefs2() {
+    // Necessitem les equacions de la corba d'interpolació
+    // C0 = P0
+    coefs_Bezier[0].set(punts_ctrl_Bezier[0]);
+    // C1 = -5.5P0 + 9P1 - 4.5P2 + P3
+    coefs_Bezier[1].set(
+      -3 * punts_ctrl_Bezier[0].x + 3 * punts_ctrl_Bezier[1].x,
+      -3 * punts_ctrl_Bezier[0].y + 3 * punts_ctrl_Bezier[1].y,
+      -3 * punts_ctrl_Bezier[0].z + 3 * punts_ctrl_Bezier[1].z);
+    // C2 = 9P0 - 22.5P1 + 18P2 - 4.5P3
+    coefs_Bezier[2].set(
+      3 * punts_ctrl_Bezier[0].x - 6 * punts_ctrl_Bezier[1].x + 3 * punts_ctrl_Bezier[2].x,
+      3 * punts_ctrl_Bezier[0].y - 6 * punts_ctrl_Bezier[1].y + 3 * punts_ctrl_Bezier[2].y,
+      3 * punts_ctrl_Bezier[0].z - 6 * punts_ctrl_Bezier[1].z + 3 * punts_ctrl_Bezier[2].z);
+    // C3 = -4.5P0 + 13.5P1 - 13.5P2 + 4.5P3
+    coefs_Bezier[3].set(
+      -punts_ctrl_Bezier[0].x + 3 * punts_ctrl_Bezier[1].x - 3 * punts_ctrl_Bezier[2].x + punts_ctrl_Bezier[3].x,
+      -punts_ctrl_Bezier[0].y + 3 * punts_ctrl_Bezier[1].y - 3 * punts_ctrl_Bezier[2].y + punts_ctrl_Bezier[3].y,
+      -punts_ctrl_Bezier[0].z + 3 * punts_ctrl_Bezier[1].z - 3 * punts_ctrl_Bezier[2].z + punts_ctrl_Bezier[3].z
+    );
+  }
+  
+  void pintar2() {
+    // Comencem pintant els punts de ctrl --> son 4
+    
+    // Seguim pintant els punts de la corba --> son tants com decidim
+    stroke(0, 255, 0);
+    strokeWeight(3);
+    noFill();
+    beginShape();
+    // corba(u) = C0 + C1 * u + C2 * u^2 + C3 * u^3
+    // u va de 0 (inici) a 1 (fí)
+    // l'interval = 1 / numero_punts
+    PVector punt_a_pintar_Bezier = new PVector();
+    float interval_Bezier = 1.0 / numero_punts_Bezier;
+    for (float u2 = 0.0; u2 <= 1.0; u2 += interval_Bezier) { // He de pintar tants punts de la corba com digui numero_punts
+      punt_a_pintar_Bezier.set(
+        coefs_Bezier[0].x + coefs_Bezier[1].x * u2 + coefs_Bezier[2].x * u2 * u2 + coefs_Bezier[3].x * u2 * u2 * u2,
+        coefs_Bezier[0].y + coefs_Bezier[1].y * u2 + coefs_Bezier[2].y * u2 * u2 + coefs_Bezier[3].y * u2 * u2 * u2,
+        coefs_Bezier[0].z + coefs_Bezier[1].z * u2 + coefs_Bezier[2].z * u2 * u2 + coefs_Bezier[3].z * u2 * u2 * u2
+      );
+      vertex(punt_a_pintar_Bezier.x, punt_a_pintar_Bezier.y, punt_a_pintar_Bezier.z);
+    }
+    endShape();
+   
+  }
+  
+  PVector getPuntARecorrer(float u) {
+    return new PVector(
+      coefs_Bezier[0].x + coefs_Bezier[1].x * u2 + coefs_Bezier[2].x * u2 * u2 + coefs_Bezier[3].x * u2 * u2 * u2,
+      coefs_Bezier[0].y + coefs_Bezier[1].y * u2 + coefs_Bezier[2].y * u2 * u2 + coefs_Bezier[3].y * u2 * u2 * u2,
+      coefs_Bezier[0].z + coefs_Bezier[1].z * u2 + coefs_Bezier[2].z * u2 * u2 + coefs_Bezier[3].z * u2 * u2 * u2
+    );
+  }
+}
+
+// CURVA DE INTERPOLACION
+class corba {
+  // Atributs
+  PVector[] punts_ctrl; // Per on passa
+  PVector[] coefs; // Governen l'eqüació
+  int numero_punts; // Quants punts volem pintar per la corba
+  
+  // Constructor
+  corba(PVector[] pc, int np) {
+    punts_ctrl = new PVector[4]; // Hi ha 4 punts de control
+    coefs = new PVector[4];
+    for (int i = 0; i < 4; i++) {
+      punts_ctrl[i] = new PVector(0.0, 0.0, 0.0);
+      coefs[i] = new PVector(0.0, 0.0, 0.0);
+      // Copiem els 4 punts de ctrl que ens han passat
+      punts_ctrl[i] = pc[i];
+    }
+    numero_punts = np;
+  }
+  
+  // Mètodes
+  void calcular_coefs() {
+    // Necessitem les equacions de la corba d'interpolació
+    // C0 = P0
+    coefs[0].set(punts_ctrl[0]);
+    // C1 = -5.5P0 + 9P1 - 4.5P2 + P3
+    coefs[1].set(
+      -5.5 * punts_ctrl[0].x + 9 * punts_ctrl[1].x - 4.5 * punts_ctrl[2].x + punts_ctrl[3].x,
+      -5.5 * punts_ctrl[0].y + 9 * punts_ctrl[1].y - 4.5 * punts_ctrl[2].y + punts_ctrl[3].y,
+      -5.5 * punts_ctrl[0].z + 9 * punts_ctrl[1].z - 4.5 * punts_ctrl[2].z + punts_ctrl[3].z
+    );
+    // C2 = 9P0 - 22.5P1 + 18P2 - 4.5P3
+    coefs[2].set(
+      9 * punts_ctrl[0].x - 22.5 * punts_ctrl[1].x + 18 * punts_ctrl[2].x - 4.5 * punts_ctrl[3].x,
+      9 * punts_ctrl[0].y - 22.5 * punts_ctrl[1].y + 18 * punts_ctrl[2].y - 4.5 * punts_ctrl[3].y,
+      9 * punts_ctrl[0].z - 22.5 * punts_ctrl[1].z + 18 * punts_ctrl[2].z - 4.5 * punts_ctrl[3].z
+    );
+    // C3 = -4.5P0 + 13.5P1 - 13.5P2 + 4.5P3
+    coefs[3].set(
+      -4.5 * punts_ctrl[0].x + 13.5 * punts_ctrl[1].x - 13.5 * punts_ctrl[2].x + 4.5 * punts_ctrl[3].x,
+      -4.5 * punts_ctrl[0].y + 13.5 * punts_ctrl[1].y - 13.5 * punts_ctrl[2].y + 4.5 * punts_ctrl[3].y,
+      -4.5 * punts_ctrl[0].z + 13.5 * punts_ctrl[1].z - 13.5 * punts_ctrl[2].z + 4.5 * punts_ctrl[3].z
+    );
+  }
+  
+  void pintar() {
+   
+    // Seguim pintant els punts de la corba --> son tants com decidim
+    stroke(0, 255, 0);
+    strokeWeight(3);
+    noFill();
+    beginShape();
+    // corba(u) = C0 + C1 * u + C2 * u^2 + C3 * u^3
+    // u va de 0 (inici) a 1 (fí)
+    // l'interval = 1 / numero_punts
+    PVector punt_a_pintar = new PVector();
+    float interval = 1.0 / numero_punts;
+    for (float u = 0.0; u <= 1.0; u += interval) { // He de pintar tants punts de la corba com digui numero_punts
+      punt_a_pintar.set(
+        coefs[0].x + coefs[1].x * u + coefs[2].x * u * u + coefs[3].x * u * u * u,
+        coefs[0].y + coefs[1].y * u + coefs[2].y * u * u + coefs[3].y * u * u * u,
+        coefs[0].z + coefs[1].z * u + coefs[2].z * u * u + coefs[3].z * u * u * u
+      );
+      vertex(punt_a_pintar.x, punt_a_pintar.y, punt_a_pintar.z);
+    }
+    endShape();
+  }
+  
+  PVector getPuntARecorrer(float u) {
+    return new PVector(
+      coefs[0].x + coefs[1].x * u + coefs[2].x * u * u + coefs[3].x * u * u * u,
+      coefs[0].y + coefs[1].y * u + coefs[2].y * u * u + coefs[3].y * u * u * u,
+      coefs[0].z + coefs[1].z * u + coefs[2].z * u * u + coefs[3].z * u * u * u
+    );
+  }
+}
+
 class voxel {
   // Atributos
   PVector forca_dins_voxel;
@@ -163,6 +329,26 @@ void setup() {
     color color_boid = color(random(255), random(255), random(255));
     boids[i] = new particula(posicion, velocidad, masa, tamano, constante_destino, constante_lider, constante_friccion, color_boid, 50);
   }
+  
+  PVector[] p = new PVector[4];
+  p[0] = new PVector(500, height/2.0 - 50, -400);
+  p[1] = new PVector(300, height/2.0, -200);
+  p[2] = new PVector(width/2.0 + 200, height/2.0 + 20, 100);
+  p[3] = new PVector(width/2.0 + 100, 300, 0);
+  // Crido al constructor de la corba
+  la_primera_corba = new corba(p, 200);
+  // Calculem els coeficients
+  la_primera_corba.calcular_coefs();
+  
+  PVector[] p2 = new PVector[4];
+  p2[0] = new PVector(width/2.0 + 100, 300, 0);
+  p2[1] = new PVector(700, 200, -100);
+  p2[2] = new PVector(800, 500, 100);
+  p2[3] = new PVector(500, height/2.0 - 50, -400);
+  // Crido al constructor de la corba
+  la_segona_corba = new corbaBezier(p2, 200);
+  // Calculem els coeficients
+  la_segona_corba.calcular_coefs2();
 }
 
 // Bucle principal de dibujo
@@ -206,4 +392,12 @@ void draw() {
   box(50, 50, 50);
   popMatrix();
   
+  lights(); // Afegir llums per a efectes 3D
+  
+  // Pintar la corba
+  la_primera_corba.pintar();
+  
+  lights();
+  // Pintar la corba
+  la_segona_corba.pintar2();
 }
