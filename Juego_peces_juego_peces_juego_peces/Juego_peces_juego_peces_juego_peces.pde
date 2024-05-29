@@ -351,9 +351,41 @@ void setup() {
   la_segona_corba.calcular_coefs2();
 }
 
+  int count = 0;
 // Bucle principal de dibujo
 void draw() {
   background(0);
+  int num = 0;
+  count++;
+  if (count == 50)
+  {
+    num = int(random(0, 4));
+  }
+  
+  switch (num)
+  {
+    case 0:
+    {
+      desti = new PVector(500, height/2.0 - 50, -400);
+    }
+    case 1:
+    {
+      desti = new PVector(2000, height/2.0 + 100, -300);
+    }
+    case 2:
+    {
+       desti = new PVector( 300, height- 300, -100); 
+    }
+    case 3:
+    {
+      desti = new PVector(600, height -100, -200);
+    }
+
+  if (count >= 600)
+    {
+      count = 0;
+    }
+  }
   boid1.calcula_particula();
   boid2.calcula_particula();
   lider.calcula_particula();
@@ -361,7 +393,6 @@ void draw() {
   boid2.pinta_particula();
   lider.pinta_particula();
   primer_voxel.pintar_voxel();
-  
   // Dibujar y actualizar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
     boids[i].calcula_particula();
