@@ -10,11 +10,15 @@ corba la_primera_corba;
 float u; // Variable de la posició al llarg de la corba
 float velocidad; // Velocitat de l'element
 boolean anada; // Direcció de l'element
+PVector punto1 = new PVector(500, height/2.0 - 50, -400);
 
 corbaBezier la_segona_corba;
 float u2; // Variable de la posició al llarg de la corba
 float velocidadBezier; // Velocitat de l'element
 boolean anadaBezier; // Direcció de l'element
+
+boolean liderHaLlegado = false;
+boolean primerRecorridoTerminado = false;
 
 // Funciones y clases
 // Classes
@@ -392,7 +396,7 @@ void draw() {
   box(50, 50, 50);
   popMatrix();
   
-  lights(); // Afegir llums per a efectes 3D
+  lights(); // Agregar luces para efectos 3D
   
   // Pintar la corba
   la_primera_corba.pintar();
@@ -400,4 +404,47 @@ void draw() {
   lights();
   // Pintar la corba
   la_segona_corba.pintar2();
+  
+  if (lider.posicio_particula.dist(desti) > 1.0) {
+    liderHaLlegado = true;
+  }
+
+  // Dibujar la esfera y hacerla recorrer la primera curva si el líder ha llegado al punto p[3]
+  if (liderHaLlegado) {
+    fill(lider.color_particula); // Usar el mismo color que el líder
+    noStroke();
+    pushMatrix();
+    // Calcular la posición de la esfera en la primera curva
+    PVector posicionCurvaPrimera = la_primera_corba.getPuntARecorrer(u);
+    translate(posicionCurvaPrimera.x, posicionCurvaPrimera.y, posicionCurvaPrimera.z);
+    sphere(50); // Cambia el radio según sea necesario
+    popMatrix();
+    
+    // Incrementar u_primera_corba para avanzar a lo largo de la primera curva
+    u += 0.005; // Ajusta la velocidad de movimiento de la esfera en la primera curva
+
+    // Si se llega al final de la primera curva, cambiar a recorrer la segunda curva
+    if (u > 1.0) {
+      primerRecorridoTerminado = true; // Reiniciar la condición para que no se siga dibujando la esfera en la primera curva
+    }
+  }
+
+  // Dibujar la esfera y hacerla recorrer la segunda curva si se ha terminado la primera curva
+  if (primerRecorridoTerminado) {
+    // Calcular la posición de la esfera en la segunda curva
+    PVector posicionCurvaSegunda = la_segona_corba.getPuntARecorrer(u2);
+    translate(posicionCurvaSegunda.x, posicionCurvaSegunda.y, posicionCurvaSegunda.z);
+    sphere(50); // Cambia el radio según sea necesario
+
+    
+    // Incrementar u_segona_corba para avanzar a lo largo de la segunda curva
+    u2 += 0.005; // Ajusta la velocidad de movimiento de la esfera en la segunda curva
+    
+    if (u2 > 1.0) {
+      liderHaLlegado = false;
+      primerRecorridoTerminado = false;
+      u = 0.0;
+      u2 = 0.0;
+    }
+  }
 }
