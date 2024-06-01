@@ -352,14 +352,16 @@ void setup() {
 }
 
   int count = 0;
+  int num = 0;
 // Bucle principal de dibujo
 void draw() {
   background(0);
-  int num = 0;
+  
   count++;
-  if (count == 50)
+  if (count > 10)
   {
     num = int(random(0, 4));
+    count = 0;
   }
   
   switch (num)
