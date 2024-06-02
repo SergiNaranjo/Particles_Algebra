@@ -1,4 +1,5 @@
 // Variables y objetos
+
 float increment_temps = 0.4;
 PVector desti;
 boolean isometric = true;
@@ -26,6 +27,11 @@ boolean anadaBezier; // Direcció de l'element
 
 // CURVA DE BEZIER
 // Classes
+enum estacions
+{
+  VERANO, OTOÑO, INVIERNO, PRIMAVERA
+}
+ estacions estacio;
 class corbaBezier {
   // Atributs
   PVector[] punts_ctrl_Bezier; // Per on passa
@@ -382,14 +388,39 @@ void setup() {
    50.0, 50.0, 100.0, color(200));
   cinque_voxel = new voxel(new PVector(0.0, -3.0, 0.0), new PVector(width / 2.0, (height / 2.0)+100, 0.0),
    50.0, 50.0, 100.0, color(200));
-  //primer_voxel = new voxel(new PVector(0.0, 0.0, -30.0), new PVector(width / 2.0, height / 2.0, 0.0),
-    //100.0, 150.0, 100.0, color(200));
+   
+   
+  
+  
+   
+   
+  
   boid1 = new particula(new PVector(width / 4.0, 3 * height / 4.0, 0.0),
     new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, friccio_peix, color(255, 0, 0), 0.0);
   boid2 = new particula(new PVector(3.0 * width / 4.0, 3 * height / 4.0, 0.0),
     new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.8, 0.1, friccio_peix, color(0, 255, 0), 0.0);
-  lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
+      lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
     new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, friccio_lider, color(0, 0, 255), 0.0);
+  if (estacio == estacions.VERANO)
+  {
+    lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, friccio_lider, color(0, 0, 255), 0.0);
+  }
+  if (estacio == estacions.OTOÑO)
+  {
+    lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, friccio_lider+0.2 , color(0, 0, 255), 0.0);
+  }
+  if (estacio == estacions.INVIERNO)
+  {
+    lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, friccio_lider+0.5, color(0, 0, 255), 0.0);
+  }
+  if (estacio == estacions.PRIMAVERA)
+  {
+    lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, friccio_lider+0.1, color(0, 0, 255), 0.0);
+  }
   
   // Inicializar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
@@ -497,10 +528,38 @@ else
 int posZ = 0;
 void keyPressed()
 {
+ 
+  estacio = estacions.VERANO;
   if (key == 'c' || key == 'C')
   {
     isometric = !isometric;
   }
+   if (key == '1')
+   {
+     segon_voxel = new voxel(new PVector(0.0, 0.0, 0.0), new PVector((width / 2.0)+300, height / 2.0, 0.0),
+    100.0, 150.0, 100.0, color(200));
+   }
+   if (key == '2')
+   {
+     segon_voxel = new voxel(new PVector(-1.5, 0.0, 0.0), new PVector((width / 2.0)+300, height / 2.0, 0.0),
+    100.0, 150.0, 100.0, color(200));
+   }
+   switch(key)
+   {
+     case '6':
+     estacio = estacions.VERANO;
+     break;
+     case '7':
+     estacio = estacions.OTOÑO;
+     break;
+     case '8':
+     estacio = estacions.INVIERNO;
+     break;
+     case '9':
+     estacio = estacions.PRIMAVERA;
+     break;
+   }
+   
 }
 
 
