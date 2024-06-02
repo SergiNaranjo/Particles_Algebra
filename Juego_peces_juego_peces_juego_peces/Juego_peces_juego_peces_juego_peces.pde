@@ -8,7 +8,8 @@ voxel primer_voxel;
 voxel segon_voxel;
 voxel tercer_voxel;
 voxel quart_voxel;
-particula[] boids = new particula[10]; // Arreglo de boids adicionales
+voxel cinque_voxel;
+particula[] boids = new particula[20]; // Arreglo de boids adicionales
 corba la_primera_corba;
 float u; // Variable de la posició al llarg de la corba
 float velocidad; // Velocitat de l'element
@@ -270,6 +271,47 @@ class particula {
       acumulador_forsa.add(segon_voxel.forca_dins_voxel);
     }
     
+    
+    min_x = tercer_voxel.posicio_voxel.x - 0.5 * tercer_voxel.ample_voxel;
+ max_x = tercer_voxel.posicio_voxel.x + 0.5 * tercer_voxel.ample_voxel;
+ min_y = tercer_voxel.posicio_voxel.y - 0.5 * tercer_voxel.alcada_voxel;
+ max_y = tercer_voxel.posicio_voxel.y + 0.5 * tercer_voxel.alcada_voxel;
+ min_z = tercer_voxel.posicio_voxel.z - 0.5 * tercer_voxel.profunditat_voxel;
+ max_z = tercer_voxel.posicio_voxel.z + 0.5 * tercer_voxel.profunditat_voxel;
+
+     if (posicio_particula.x > min_x && posicio_particula.x < max_x &&
+        posicio_particula.y > min_y && posicio_particula.y < max_y &&
+        posicio_particula.z > min_z && posicio_particula.z < max_z) {
+      acumulador_forsa.add(tercer_voxel.forca_dins_voxel);
+    }
+    
+        min_x = quart_voxel.posicio_voxel.x - 0.5 * quart_voxel.ample_voxel;
+ max_x = quart_voxel.posicio_voxel.x + 0.5 * quart_voxel.ample_voxel;
+ min_y = quart_voxel.posicio_voxel.y - 0.5 * quart_voxel.alcada_voxel;
+ max_y = quart_voxel.posicio_voxel.y + 0.5 * quart_voxel.alcada_voxel;
+ min_z = quart_voxel.posicio_voxel.z - 0.5 * quart_voxel.profunditat_voxel;
+ max_z = quart_voxel.posicio_voxel.z + 0.5 * quart_voxel.profunditat_voxel;
+
+     if (posicio_particula.x > min_x && posicio_particula.x < max_x &&
+        posicio_particula.y > min_y && posicio_particula.y < max_y &&
+        posicio_particula.z > min_z && posicio_particula.z < max_z) {
+      acumulador_forsa.add(quart_voxel.forca_dins_voxel);
+    }
+
+   
+        min_x = cinque_voxel.posicio_voxel.x - 0.5 * cinque_voxel.ample_voxel;
+ max_x = cinque_voxel.posicio_voxel.x + 0.5 * cinque_voxel.ample_voxel;
+ min_y = cinque_voxel.posicio_voxel.y - 0.5 * cinque_voxel.alcada_voxel;
+ max_y = cinque_voxel.posicio_voxel.y + 0.5 * cinque_voxel.alcada_voxel;
+ min_z = cinque_voxel.posicio_voxel.z - 0.5 * cinque_voxel.profunditat_voxel;
+ max_z = cinque_voxel.posicio_voxel.z + 0.5 * cinque_voxel.profunditat_voxel;
+
+     if (posicio_particula.x > min_x && posicio_particula.x < max_x &&
+        posicio_particula.y > min_y && posicio_particula.y < max_y &&
+        posicio_particula.z > min_z && posicio_particula.z < max_z) {
+      acumulador_forsa.add(cinque_voxel.forca_dins_voxel);
+    }
+    
     // Forca hacia el nuevo destino
     PVector vector_destino = PVector.sub(desti, posicio_particula);
     vector_destino.normalize();
@@ -330,9 +372,17 @@ void setup() {
   size(1920, 1080, P3D);
   desti = new PVector(500, height/2.0 - 50, -400);
   primer_voxel = new voxel(new PVector(0.0, 0.0, -30.0), new PVector(width / 2.0, height / 2.0, 0.0),
-    100.0, 150.0, 100.0, color(200));
+   50.0, 50.0, 100.0, color(200));
   segon_voxel = new voxel(new PVector(-1.5, 0.0, 0.0), new PVector((width / 2.0)+300, height / 2.0, 0.0),
     100.0, 150.0, 100.0, color(200));
+  tercer_voxel = new voxel(new PVector(0.0, 1.5, 0.0), new PVector((width / 2.0)- 300, height / 2.0, 0.0),
+    100.0, 150.0, 100.0, color(200));
+  quart_voxel = new voxel(new PVector(0.0, 0.0, 30.0), new PVector(width / 2.0, (height / 2.0)-100, 0.0),
+   50.0, 50.0, 100.0, color(200));
+  cinque_voxel = new voxel(new PVector(0.0, -3.0, 0.0), new PVector(width / 2.0, (height / 2.0)+100, 0.0),
+   50.0, 50.0, 100.0, color(200));
+  //primer_voxel = new voxel(new PVector(0.0, 0.0, -30.0), new PVector(width / 2.0, height / 2.0, 0.0),
+    //100.0, 150.0, 100.0, color(200));
   boid1 = new particula(new PVector(width / 4.0, 3 * height / 4.0, 0.0),
     new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, friccio_peix, color(255, 0, 0), 0.0);
   boid2 = new particula(new PVector(3.0 * width / 4.0, 3 * height / 4.0, 0.0),
@@ -396,6 +446,10 @@ void draw() {
   lider.pinta_particula();
   primer_voxel.pintar_voxel();
   segon_voxel.pintar_voxel();
+  tercer_voxel.pintar_voxel();
+  quart_voxel.pintar_voxel();
+  cinque_voxel.pintar_voxel();
+  
   // Dibujar y actualizar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
     boids[i].calcula_particula();
@@ -417,14 +471,7 @@ void draw() {
   box(width/2.0, height/2.0, 500);
   popMatrix();
   
-  // NUEVO DESTINO
-  fill(255, 255, 0);
-  stroke(0);
-  pushMatrix();
-  translate(500, height/2.0 - 50, -400);
-  rotateX(20);
-  box(50, 50, 50);
-  popMatrix();
+ 
   
   lights(); // Afegir llums per a efectes 3D
   
@@ -435,7 +482,9 @@ void draw() {
   // Pintar la corba
   la_segona_corba.pintar2();
 }
-    int posZ = 0;
+
+
+int posZ = 0;
 void mouseMoved()
 {
 
