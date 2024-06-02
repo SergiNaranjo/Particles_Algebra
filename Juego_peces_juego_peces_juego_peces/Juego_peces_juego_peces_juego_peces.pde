@@ -5,6 +5,9 @@ particula boid1;
 particula boid2;
 particula lider;
 voxel primer_voxel;
+voxel segon_voxel;
+voxel tercer_voxel;
+voxel quart_voxel;
 particula[] boids = new particula[10]; // Arreglo de boids adicionales
 corba la_primera_corba;
 float u; // Variable de la posició al llarg de la corba
@@ -303,16 +306,23 @@ class particula {
 
 // Configuracion inicial
 void setup() {
+
+ float friccio_lider =  0.6;
+ float friccio_peix = 0.2;
+ boolean friccio = true;
+  
   size(1920, 1080, P3D);
   desti = new PVector(500, height/2.0 - 50, -400);
   primer_voxel = new voxel(new PVector(0.0, -1.0, -100.0), new PVector(width / 2.0, height / 2.0, 0.0),
     100.0, 150.0, 100.0, color(200));
+    segon_voxel = new voxel(new PVector(0.0, -1.0, -100.0), new PVector(400, height / 2.0, 1.0),
+    100.0, 150.0, 100.0, color(200));
   boid1 = new particula(new PVector(width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, 0.5, color(255, 0, 0), 0.0);
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, friccio_peix, color(255, 0, 0), 0.0);
   boid2 = new particula(new PVector(3.0 * width / 4.0, 3 * height / 4.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.8, 0.1, 0.2, color(0, 255, 0), 0.0);
+    new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.8, 0.1, friccio_peix, color(0, 255, 0), 0.0);
   lider = new particula(new PVector(width / 2.0, height - 50.0, 0.0),
-    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, 0.6, color(0, 0, 255), 0.0);
+    new PVector(0.0, 0.0, 0.0), 1.0, 20.0, 0.9, 0.0, friccio_lider, color(0, 0, 255), 0.0);
   
   // Inicializar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
@@ -325,7 +335,12 @@ void setup() {
     float tamano = random(10, 20);
     float constante_destino = random(0.1, 0.5);
     float constante_lider = random(0.1, 0.5);
-    float constante_friccion = random(0.1, 0.5);
+    float constante_friccion = 0;
+    if (friccio)
+    {
+      constante_friccion = random(0.1, 0.5);
+    }
+    
     color color_boid = color(random(255), random(255), random(255));
     boids[i] = new particula(posicion, velocidad, masa, tamano, constante_destino, constante_lider, constante_friccion, color_boid, 50);
   }
@@ -357,30 +372,27 @@ void setup() {
 void draw() {
   background(0);
   
-  count++;
-  if (count > 10)
-  {
-    num = int(random(0, 4));
-    count = 0;
-  }
+  
+   
+
   
   switch (num)
   {
     case 0:
     {
-      desti = new PVector(500, height/2.0 - 50, -400);
+      //desti = new PVector(500, height/2.0 - 50, -400);
     }
     case 1:
     {
-      desti = new PVector(2000, height/2.0 + 100, -300);
+      //desti = new PVector(2000, height/2.0 + 100, -300);
     }
     case 2:
     {
-       desti = new PVector( 300, height- 300, -100); 
+       //desti = new PVector( 300, height- 300, -100); 
     }
     case 3:
     {
-      desti = new PVector(600, height -100, -200);
+      //desti = new PVector(600, height -100, -200);
     }
 
   if (count >= 600)
@@ -395,6 +407,7 @@ void draw() {
   boid2.pinta_particula();
   lider.pinta_particula();
   primer_voxel.pintar_voxel();
+  segon_voxel.pintar_voxel();
   // Dibujar y actualizar los boids adicionales
   for (int i = 0; i < boids.length; i++) {
     boids[i].calcula_particula();
@@ -433,4 +446,14 @@ void draw() {
   lights();
   // Pintar la corba
   la_segona_corba.pintar2();
+}
+    int posZ = 0;
+void mouseMoved()
+{
+
+  desti = new PVector(mouseX, mouseY, 0);
+  if (mousePressed) 
+   {
+     posZ = posZ++;
+   }
 }
