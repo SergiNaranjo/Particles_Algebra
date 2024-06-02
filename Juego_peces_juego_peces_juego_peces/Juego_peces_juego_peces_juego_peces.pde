@@ -1,6 +1,7 @@
 // Variables y objetos
 float increment_temps = 0.4;
 PVector desti;
+boolean isometric = true;
 particula boid1;
 particula boid2;
 particula lider;
@@ -437,7 +438,16 @@ void setup() {
 // Bucle principal de dibujo
 void draw() {
   background(0);
+if (!isometric)
+{
+  ortho(-width/2.0, width/2.0, -height/2.0, height/2.0, -1000.0, 1000.0);
 
+}
+else
+  {
+    perspective();
+
+  }
   boid1.calcula_particula();
   boid2.calcula_particula();
   lider.calcula_particula();
@@ -485,6 +495,15 @@ void draw() {
 
 
 int posZ = 0;
+void keyPressed()
+{
+  if (key == 'c' || key == 'C')
+  {
+    isometric = !isometric;
+  }
+}
+
+
 void mouseMoved()
 {
 
