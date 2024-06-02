@@ -243,17 +243,33 @@ class particula {
       acumulador_forsa.add(vector_lider);
     }
     // Forca del voxel
+    
     float min_x = primer_voxel.posicio_voxel.x - 0.5 * primer_voxel.ample_voxel;
     float max_x = primer_voxel.posicio_voxel.x + 0.5 * primer_voxel.ample_voxel;
     float min_y = primer_voxel.posicio_voxel.y - 0.5 * primer_voxel.alcada_voxel;
     float max_y = primer_voxel.posicio_voxel.y + 0.5 * primer_voxel.alcada_voxel;
     float min_z = primer_voxel.posicio_voxel.z - 0.5 * primer_voxel.profunditat_voxel;
     float max_z = primer_voxel.posicio_voxel.z + 0.5 * primer_voxel.profunditat_voxel;
+
     if (posicio_particula.x > min_x && posicio_particula.x < max_x &&
         posicio_particula.y > min_y && posicio_particula.y < max_y &&
         posicio_particula.z > min_z && posicio_particula.z < max_z) {
       acumulador_forsa.add(primer_voxel.forca_dins_voxel);
     }
+    
+ min_x = segon_voxel.posicio_voxel.x - 0.5 * segon_voxel.ample_voxel;
+ max_x = segon_voxel.posicio_voxel.x + 0.5 * segon_voxel.ample_voxel;
+ min_y = segon_voxel.posicio_voxel.y - 0.5 * segon_voxel.alcada_voxel;
+ max_y = segon_voxel.posicio_voxel.y + 0.5 * segon_voxel.alcada_voxel;
+ min_z = segon_voxel.posicio_voxel.z - 0.5 * segon_voxel.profunditat_voxel;
+ max_z = segon_voxel.posicio_voxel.z + 0.5 * segon_voxel.profunditat_voxel;
+
+     if (posicio_particula.x > min_x && posicio_particula.x < max_x &&
+        posicio_particula.y > min_y && posicio_particula.y < max_y &&
+        posicio_particula.z > min_z && posicio_particula.z < max_z) {
+      acumulador_forsa.add(segon_voxel.forca_dins_voxel);
+    }
+    
     // Forca hacia el nuevo destino
     PVector vector_destino = PVector.sub(desti, posicio_particula);
     vector_destino.normalize();
@@ -313,9 +329,9 @@ void setup() {
   
   size(1920, 1080, P3D);
   desti = new PVector(500, height/2.0 - 50, -400);
-  primer_voxel = new voxel(new PVector(0.0, -1.0, -100.0), new PVector(width / 2.0, height / 2.0, 0.0),
+  primer_voxel = new voxel(new PVector(0.0, 0.0, -30.0), new PVector(width / 2.0, height / 2.0, 0.0),
     100.0, 150.0, 100.0, color(200));
-    segon_voxel = new voxel(new PVector(0.0, -1.0, -100.0), new PVector(400, height / 2.0, 1.0),
+  segon_voxel = new voxel(new PVector(-1.5, 0.0, 0.0), new PVector((width / 2.0)+300, height / 2.0, 0.0),
     100.0, 150.0, 100.0, color(200));
   boid1 = new particula(new PVector(width / 4.0, 3 * height / 4.0, 0.0),
     new PVector(0.0, 0.0, 0.0), 1.0, 15.0, 0.2, 0.2, friccio_peix, color(255, 0, 0), 0.0);
@@ -371,35 +387,7 @@ void setup() {
 // Bucle principal de dibujo
 void draw() {
   background(0);
-  
-  
-   
 
-  
-  switch (num)
-  {
-    case 0:
-    {
-      //desti = new PVector(500, height/2.0 - 50, -400);
-    }
-    case 1:
-    {
-      //desti = new PVector(2000, height/2.0 + 100, -300);
-    }
-    case 2:
-    {
-       //desti = new PVector( 300, height- 300, -100); 
-    }
-    case 3:
-    {
-      //desti = new PVector(600, height -100, -200);
-    }
-
-  if (count >= 600)
-    {
-      count = 0;
-    }
-  }
   boid1.calcula_particula();
   boid2.calcula_particula();
   lider.calcula_particula();
